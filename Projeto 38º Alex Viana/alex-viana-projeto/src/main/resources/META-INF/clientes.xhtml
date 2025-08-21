@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:p="http://primefaces.org/ui">
+<h:head>
+    <title>Gerenciamento de Clientes - Alex Viana</title>
+    <!-- Inclui o CSS do PrimeIcons (ícones do PrimeFaces) -->
+    <h:outputStylesheet library="primefaces" name="primeicons/primeicons.css" />
+
+	
+	</h:head>
+<h:body>
+    <!-- Componente para exibir mensagens de sistema (erros, sucessos, avisos) -->
+    <p:growl id="messages" showDetail="true" />
+
+    <h:form id="clienteForm">
+        <p:panel header="Gerenciamento de Clientes" style="margin-bottom:20px;">
+            <p:toolbar>
+                <p:toolbarGroup>
+                    <p:commandButton value="Novo" icon="pi pi-plus" actionListener="#{clienteBean.newCliente()}"
+                                     update="manage-cliente-content" oncomplete="PF('manageClienteDialog').show()"
+                                     styleClass="ui-button-success" />
+                    <p:commandButton value="Editar" icon="pi pi-pencil" actionListener="#{clienteBean.editCliente()}"
+                                     update="manage-cliente-content" oncomplete="PF('manageClienteDialog').show()"
+                                     styleClass="ui-button-warning"
+                                     disabled="#{clienteBean.selectedCliente == null}" />
+                    <p:commandButton value="Excluir" icon="pi pi-trash" actionListener="#{clienteBean.deleteCliente()}"
+                                     update="clienteForm:clientesTable messages"
+                                     styleClass="ui-button-danger"
+                                     disabled="#{clienteBean.selectedCliente == null}">
+                        <p:confirm header="Confirmação" message="Tem certeza que deseja excluir este cliente?" icon="pi pi-exclamation-triangle" />
+                    </p:commandButton>
+                </p:toolbarGroup>
+            </p:toolbar>
+
+            <!-- Tabela para listar os clientes -->
+            <p:dataTable id="clientesTable" widgetVar="clientesTable" var="cliente"
+                         value="#{clienteBean.clientes}" rows="10" paginator="true"
+                         rowKey="#{cliente.id}" selection="#{clienteBean.selectedCliente}"
+                         emptyMessage="Nenhum cliente encontrado."
+                         style="margin-top:20px;">
+
+                <p:column selectionMode="single" style="width:16px;text-align:center"/>
+                <p:column headerText="ID" sortBy="#{cliente.id}">
+                    <h:outputText value="#{cliente.id}" />
+                </p:column>
+                <p:column headerText="Nome" sortBy="#{cliente.nome}" filterBy="#{cliente.nome}" filterMatchMode="contains">
+                    <h:outputText value="#{cliente.nome}" />
+                </p:column>
+                <p:column headerText="CPF" sortBy="#{cliente.cpf}">
+                    <h:outputText value="#{cliente.cpf}" />
+                </p:column>
+                <p:column headerText="Email" sortBy="#{cliente.email}">
+                    <h:outputText value="#{cliente.email}" />
+                </p:column>
+                <p:column headerText="Telefone" sortBy="#{cliente.tel}">
+                    <h:outputText value="#{cliente.tel}" />
+                </p:column>
+                <p:column headerText="Cidade" sortBy="#{cliente.cidade}">
+                    <h:outputText value="#{cliente.cidade}" />
+                </p:column>
+                <p:column headerText="Estado" sortBy="#{cliente.estado}">
+                    <h:outputText value="#{cliente.estado}" />
+                </p:column>
+            </p:dataTable>
+        </p:panel>
+
+        <!-- Diálogo para Cadastro/Edição de Cliente -->
+        <p:dialog header="Detalhes do Cliente" showEffect="fade" modal="true"
+                  widgetVar="manageClienteDialog" responsive="true">
+            <p:outputPanel id="manage-cliente-content" class="ui-fluid">
+                <p:panelGrid columns="2" rendered="#{clienteBean.cliente != null}">
+                    <p:outputLabel for="nome" value="Nome:"/>
+                    <p:inputText id="nome" value="#{clienteBean.cliente.nome}" required="true"
+                                 requiredMessage="Nome é obrigatório."/>
+
+                    <p:outputLabel for="cpf" value="CPF:"/>
+                    <p:inputNumber id="cpf" value="#{clienteBean.cliente.cpf}" required="true"
+                                   requiredMessage="CPF é obrigatório." decimalPlaces="0"/>
+
+                    <p:outputLabel for="tel" value="Telefone:"/>
+                    <p:inputNumber id="tel" value="#{clienteBean.cliente.tel}" required="true"
+                                   requiredMessage="Telefone é obrigatório." decimalPlaces="0"/>
+
+                    <p:outputLabel for="email" value="Email:"/>
+                    <p:inputText id="email" value="#{clienteBean.cliente.email}" required="true"
+                                 requiredMessage="Email é obrigatório."/>
+
+                    <p:outputLabel for="endereco" value="Endereço:"/>
+                    <p:inputText id="endereco" value="#{clienteBean.cliente.end}" required="true"
+                                 requiredMessage="Endereço é obrigatório."/>
+
+                    <p:outputLabel for="numero" value="Número:"/>
+                    <p:inputNumber id="numero" value="#{clienteBean.cliente.numero}" required="true"
+                                   requiredMessage="Número é obrigatório." decimalPlaces="0"/>
+
+                    <p:outputLabel for="cidade" value="Cidade:"/>
+                    <p:inputText id="cidade" value="#{clienteBean.cliente.cidade}" required="true"
+                                 requiredMessage="Cidade é obrigatória."/>
+
+                    <p:outputLabel for="estado" value="Estado:"/>
+                    <p:inputText id="estado" value="#{clienteBean.cliente.estado}" required="true"
+                                 requiredMessage="Estado é obrigatório."/>
+                </p:panelGrid>
+            </p:outputPanel>
+
+            <f:facet name="footer">
+                <p:commandButton value="Salvar" icon="pi pi-check" actionListener="#{clienteBean.saveCliente()}"
+                                 update="clienteForm:clientesTable messages manage-cliente-content" />
+                <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('manageClienteDialog').hide()"
+                                 styleClass="ui-button-secondary" />
+            </f:facet>
+        </p:dialog>
+
+        <!-- Diálogo de Confirmação para Excluir -->
+        <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" responsive="true">
+            <p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+            <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" icon="pi pi-times" />
+        </p:confirmDialog>
+
+    </h:form>
+</h:body>
+</html>
